@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.content-cache/
+*.log
+# Owner's raw source material (resume, theses, notes). Input only: never served, never committed,
+# because some source documents name other people who must not appear in this portfolio.
+/assets/

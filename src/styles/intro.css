@@ -1,0 +1,171 @@
+/* ── Intro: request → response ─────────────────────────────────────────── */
+:root { --stage: #0B0913; }
+
+#intro { display: none; }
+.intro-pending #intro,
+.intro-active #intro {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  overflow: hidden;
+  background-color: var(--stage);
+  color: #F7F6FB;
+  will-change: opacity;
+}
+
+.intro-pending .site-header,
+.intro-pending .progress,
+.intro-pending main,
+.intro-pending .site-footer { opacity: 0; }
+/* The real heading stays hidden while the intro's copy of the name flies into its place. */
+.intro-landing .hero-name { visibility: hidden; }
+
+.intro-loader {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 28px; height: 28px;
+  margin: -14px 0 0 -14px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(190, 180, 255, 0.85);
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.rq-warp { position: absolute; inset: 0; width: 100%; height: 100%; }
+.rq-cam { position: absolute; inset: 0; will-change: transform; }
+.rq-flash { position: absolute; inset: 0; background: #DCD5FF; opacity: 0; pointer-events: none; will-change: opacity; }
+
+/* Terminal */
+.rq-term {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: min(780px, calc(100vw - 32px));
+  translate: -50% -50%;
+  border-radius: 16px;
+  background: rgba(22, 18, 40, 0.92);
+  border: 1px solid rgba(190, 180, 255, 0.18);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  opacity: 0;
+}
+.rq-bar { display: flex; align-items: center; gap: 7px; padding: 11px 14px; border-bottom: 1px solid rgba(190, 180, 255, 0.1); }
+.rq-bar i { width: 10px; height: 10px; border-radius: 50%; background: rgba(190, 180, 255, 0.25); }
+.rq-bar span { margin-left: 8px; font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; color: rgba(200, 192, 240, 0.6); }
+.rq-screen { padding: clamp(18px, 4vw, 28px) clamp(18px, 4vw, 26px); }
+.rq-line { margin: 0; font-family: var(--font-mono); font-size: clamp(1.15rem, 4.6vw, 2.2rem); color: #F1EEFF; white-space: nowrap; }
+.rq-prompt { color: #8EE8B8; }
+.rq-caret {
+  display: inline-block;
+  width: 0.55em; height: 1.1em;
+  margin-left: 2px;
+  vertical-align: -0.18em;
+  background: #C9C0FF;
+  animation: caret 0.9s steps(1) infinite;
+}
+.rq-caret.is-sent { animation: none; background: #8EE8B8; box-shadow: 0 0 18px #8EE8B8; }
+@keyframes caret { 50% { opacity: 0; } }
+
+/* The request flying off */
+.rq-packet {
+  position: absolute;
+  left: 50%; top: 50%;
+  translate: -50% -50%;
+  font-family: var(--font-mono);
+  font-size: clamp(1.15rem, 4.6vw, 2.2rem);
+  color: #8EE8B8;
+  text-shadow: 0 0 18px rgba(142, 232, 184, 0.8);
+  white-space: nowrap;
+  opacity: 0;
+}
+
+/* Network hops passing the viewer */
+.rq-hop {
+  position: absolute;
+  left: 50%; top: 50%;
+  translate: -50% -50%;
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(190, 180, 255, 0.6);
+  background: rgba(36, 28, 74, 0.75);
+  box-shadow: 0 0 24px rgba(150, 135, 255, 0.35);
+  font-family: var(--font-mono);
+  font-size: clamp(1rem, 3vw, 1.35rem);
+  letter-spacing: 0.06em;
+  color: #E4DEFF;
+  white-space: nowrap;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.rq-latency {
+  position: absolute;
+  left: 50%; bottom: clamp(24px, 7vh, 64px);
+  translate: -50% 0;
+  font-family: var(--font-mono);
+  font-size: clamp(0.8rem, 2vw, 0.95rem);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(200, 192, 240, 0.75);
+  opacity: 0;
+}
+.rq-latency b { display: inline-block; min-width: 3ch; text-align: right; color: #FFD9A8; font-weight: 600; }
+
+/* Response */
+.rq-response {
+  position: absolute;
+  left: 50%; top: 50%;
+  translate: -50% -50%;
+  width: min(760px, calc(100vw - 40px));
+  opacity: 0;
+}
+.rq-status { margin: 0 0 clamp(14px, 3vh, 26px); line-height: 1; transform-origin: 0% 60%; }
+.rq-proto { display: block; font-family: var(--font-mono); font-size: clamp(0.85rem, 2.2vw, 1.05rem); letter-spacing: 0.12em; color: rgba(200, 192, 240, 0.7); margin-bottom: 8px; }
+.rq-status b {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(3.4rem, 15vw, 8.5rem);
+  letter-spacing: -0.04em;
+  color: #8EE8B8;
+  text-shadow: 0 0 40px rgba(142, 232, 184, 0.35);
+}
+.rq-ok { position: relative; display: inline-block; }
+.rq-ch { position: absolute; left: 0; top: 0; opacity: 0; text-shadow: none !important; will-change: transform, opacity; }
+.rq-status b.rq-ch-r { color: #FF5E7A; }
+.rq-status b.rq-ch-b { color: #5EC8FF; }
+.rq-headers { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+.rq-headers li, .rq-body {
+  font-family: var(--font-mono);
+  font-size: clamp(0.88rem, 2.6vw, 1.15rem);
+  line-height: 1.5;
+  color: #E9E5FF;
+  opacity: 0;
+}
+.rq-k { color: #A99DF5; }
+.rq-body { margin: clamp(12px, 2.5vh, 20px) 0 0; font-size: clamp(1rem, 3.4vw, 1.5rem); }
+.rq-brace, .rq-q { color: #A99DF5; }
+.rq-name { font-family: var(--font-display); font-weight: 650; letter-spacing: -0.03em; font-size: 1.25em; color: #F7F6FB; }
+
+/* Render: the dark stage is cut away by a soft-edged circle growing from the name. */
+#intro.is-rendering {
+  -webkit-mask-image: radial-gradient(circle at var(--rx) var(--ry), transparent var(--reveal), #000 calc(var(--reveal) + var(--soft)));
+  mask-image: radial-gradient(circle at var(--rx) var(--ry), transparent var(--reveal), #000 calc(var(--reveal) + var(--soft)));
+}
+
+/* The name in flight: lives outside the stage (so the mask never clips it), centred on its start. */
+.rq-flyer {
+  position: fixed;
+  z-index: 940;
+  visibility: hidden;
+  pointer-events: none;
+  font-family: var(--font-display);
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  white-space: nowrap;
+  color: #F7F6FB;
+  transform: translate(-50%, -50%);
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
